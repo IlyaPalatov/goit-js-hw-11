@@ -1,5 +1,7 @@
-import { axios, Notiflix, SimpleLightbox } from '../js/libraries';
-
+import axios from 'axios';
+import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const API_KEY = '37184113-cc7f1841943926b48c61b8d8a';
 const BASE_URL = 'https://pixabay.com/api/';
@@ -31,6 +33,7 @@ loadMoreButton.addEventListener('click', () => {
 });
 
 let searchPerformed = false;
+let totalPages = 0;
 
 async function searchImages(query) {
   try {
@@ -59,16 +62,16 @@ async function searchImages(query) {
 
     renderImages(images);
 
-    if (images.length < totalHits) {
-      showLoadMoreButton();
-    } else {
-      hideLoadMoreButton();
-    }
-
     if (!searchPerformed) {
       Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
       searchPerformed = true;
-      scrollToNextGroup();
+      totalPages = Math.ceil(totalHits / ITEMS_PER_PAGE);
+    }
+
+    if (currentPage < totalPages) {
+      showLoadMoreButton();
+    } else {
+      hideLoadMoreButton();
     }
   } catch (error) {
     console.error(error);
@@ -102,7 +105,6 @@ function createImageCard(image) {
   `;
 }
 
-
 function clearGallery() {
   gallery.innerHTML = '';
 }
@@ -115,7 +117,6 @@ function hideLoadMoreButton() {
   loadMoreButton.style.display = 'none';
   if (loadMoreButton.style.display === 'none') {
     Notiflix.Notify.info('You have reached the end of the images.');
-
   }
 }
 
