@@ -28,12 +28,18 @@ searchForm.addEventListener('submit', (event) => {
 });
 
 loadMoreButton.addEventListener('click', () => {
+  if (currentPage >= totalPages) {
+    Notiflix.Notify.info('You have reached the end of the images.');
+    return;
+  }
+
   currentPage++;
   searchImages(currentQuery);
 });
 
 let searchPerformed = false;
 let totalPages = 0;
+let totalHits = 0;
 
 async function searchImages(query) {
   try {
@@ -51,7 +57,7 @@ async function searchImages(query) {
 
     const { data } = response;
     const images = data.hits;
-    const totalHits = data.totalHits;
+    totalHits = data.totalHits;
 
     if (images.length === 0) {
       Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
@@ -62,7 +68,7 @@ async function searchImages(query) {
 
     renderImages(images);
 
-    if (!searchPerformed) {
+    if (currentPage === 1) {
       Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
       searchPerformed = true;
       totalPages = Math.ceil(totalHits / ITEMS_PER_PAGE);
@@ -76,7 +82,7 @@ async function searchImages(query) {
   } catch (error) {
     console.error(error);
     Notiflix.Notify.failure('Oops! Something went wrong. Please try again.');
-    clearGallery(); 
+    clearGallery();
   }
 }
 
@@ -115,7 +121,7 @@ function showLoadMoreButton() {
 
 function hideLoadMoreButton() {
   loadMoreButton.style.display = 'none';
-  if (loadMoreButton.style.display === 'none') {
+  if (currentPage === totalPages && currentPage > 1) {
     Notiflix.Notify.info('You have reached the end of the images.');
   }
 }
